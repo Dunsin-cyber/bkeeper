@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/Dunsin-cyber/bkeeper/cmd/api/handlers"
 	"github.com/Dunsin-cyber/bkeeper/cmd/common"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -15,7 +16,8 @@ import (
 
 type Application struct {
   logger echo.Logger
-  server echo.Echo
+  server *echo.Echo
+  handler handlers.Handler
 
 }
 
@@ -27,14 +29,11 @@ func main() {
     e.Logger.Fatal("Error loading .env file", err)
   }
 
-  _, err = common.NewDatabase()
+  db, err := common.NewDatabase()
 
   if err != nil {
-    e.Logger.Fatal("Could not connect to the database", err)
+    e.Logger.Fatal("Could not connect to the database", err.Error())
   }
-
-
-
   
   port := os.Getenv("PORT")
 //   DBUrl := os.Getenv("DATABASE_URL")
@@ -43,6 +42,18 @@ func main() {
   e.Use(middleware.Recover())
 
   e.GET("/", hello)
+
+  hdlr := handlers.Handler{
+    DB: db,
+  }
+
+  app := Application{
+    logger: e.Logger,
+    server: e,
+    handler: hdlr,
+  }
+
+  fmt.Println(app)
 
   // Start server
   if err := e.Start(fmt.Sprintf("localhost:%s", port)); err != nil && !errors.Is(err, http.ErrServerClosed) {

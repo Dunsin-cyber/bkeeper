@@ -3,6 +3,7 @@ package common
 import (
 	"fmt"
 	"os"
+	"log"
 
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
@@ -30,6 +31,8 @@ db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 if err != nil {
 	return nil, err
 }
+
+log.Default().Println("Database connection established")
 
 return db, nil
 
