@@ -6,13 +6,12 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-
 func (h *Handler) HealthCheck(c echo.Context) error {
- healthCheckStruct := struct {
-	Health bool `json:"health"`
- } {
-	Health: true,
- }
+	healthCheckStruct := struct {
+		Health bool `json:"health"`
+	}{
+		Health: true,
+	}
 
- return c.JSON(http.StatusCreated, healthCheckStruct)
+	return c.JSON(http.StatusCreated, healthCheckStruct)
 }

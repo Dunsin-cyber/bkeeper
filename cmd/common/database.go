@@ -2,38 +2,36 @@ package common
 
 import (
 	"fmt"
-	"os"
 	"log"
+	"os"
 
 	"github.com/joho/godotenv"
-	"gorm.io/gorm"
 	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
+func NewDatabase() (*gorm.DB, error) {
 
+	err := godotenv.Load(".env")
+	if err != nil {
+		panic("Error loading .env file")
+	}
 
-func NewDatabase() (*gorm.DB,  error){
+	host := os.Getenv("DB_HOST")
+	username := os.Getenv("DB_USERNAME")
+	password := os.Getenv("DB_PASSWORD")
+	database := os.Getenv("DB_DATABASE")
+	port := os.Getenv("DB_PORT")
 
-	 err := godotenv.Load(".env")
-   if err != nil {
-    panic("Error loading .env file")
-  }
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", host, username, password, database, port)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
-  host :=  os.Getenv("DB_HOST")
-  username := os.Getenv("DB_USERNAME")
-  password := os.Getenv("DB_PASSWORD")
-  database := os.Getenv("DB_DATABASE")
-  port := os.Getenv("DB_PORT")
+	if err != nil {
+		return nil, err
+	}
 
-dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", host, username, password, database, port)
-db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	log.Default().Println("Database connection established")
 
-if err != nil {
-	return nil, err
-}
-
-log.Default().Println("Database connection established")
-
-return db, nil
+	return db, nil
 
 }
