@@ -7,10 +7,17 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/Dunsin-cyber/bkeeper/cmd/common"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
+
+type Application struct {
+  logger echo.Logger
+  server echo.Echo
+
+}
 
 func main() {
   e := echo.New()
@@ -19,6 +26,14 @@ func main() {
    if err != nil {
     e.Logger.Fatal("Error loading .env file", err)
   }
+
+  _, err = common.NewDatabase()
+
+  if err != nil {
+    e.Logger.Fatal("Could not connect to the database", err)
+  }
+
+
 
   
   port := os.Getenv("PORT")
