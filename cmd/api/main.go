@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/Dunsin-cyber/bkeeper/cmd/api/handlers"
+	"github.com/Dunsin-cyber/bkeeper/cmd/api/middlewares"
 	"github.com/Dunsin-cyber/bkeeper/cmd/common"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -23,6 +24,11 @@ type Application struct {
 
 func main() {
   e := echo.New()
+  
+  e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+  Format: "time=${time_rfc3339} remote_ip=${remote_ip} method=${method}, uri=${uri}, status=${status}\n"}))
+  e.Use(middleware.Recover())
+  e.Use(middlewares.CustomMiddleware)
 
   err := godotenv.Load(".env")
    if err != nil {
@@ -32,36 +38,26 @@ func main() {
   db, err := common.NewDatabase()
 
   if err != nil {
-    e.Logger.Fatal("Could not connect to the database", err.Error())
+    e.Logger.Fatal(err.Error())
   }
   
-  port := os.Getenv("PORT")
-//   DBUrl := os.Getenv("DATABASE_URL")
-
-  e.Use(middleware.Logger())
-  e.Use(middleware.Recover())
-
-  e.GET("/", hello)
-
-  hdlr := handlers.Handler{
+  
+  h := handlers.Handler{
     DB: db,
   }
-
+  
   app := Application{
-    logger: e.Logger,
-    server: e,
-    handler: hdlr,
+      logger: e.Logger,
+      server: e,
+      handler: h,
   }
-
+  
+  app.routes(h)
   fmt.Println(app)
-
-  // Start server
+    
+    // Start server
+    port := os.Getenv("PORT")
   if err := e.Start(fmt.Sprintf("localhost:%s", port)); err != nil && !errors.Is(err, http.ErrServerClosed) {
     slog.Error("failed to start server", "error", err)
   }
-}
-
-// Handler
-func hello(c echo.Context) error {
-  return c.String(http.StatusOK, "Hello, World!")
 }
