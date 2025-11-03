@@ -9,7 +9,7 @@ import (
 
 	"github.com/Dunsin-cyber/bkeeper/cmd/api/handlers"
 	"github.com/Dunsin-cyber/bkeeper/cmd/api/middlewares"
-	"github.com/Dunsin-cyber/bkeeper/cmd/common"
+	"github.com/Dunsin-cyber/bkeeper/common"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
