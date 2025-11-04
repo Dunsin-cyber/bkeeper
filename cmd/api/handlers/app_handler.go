@@ -13,5 +13,5 @@ func (h *Handler) HealthCheck(c echo.Context) error {
 		Health: true,
 	}
 
-	return c.JSON(http.StatusCreated, healthCheckStruct)
+	return c.JSON(http.StatusOK, healthCheckStruct)
 }
