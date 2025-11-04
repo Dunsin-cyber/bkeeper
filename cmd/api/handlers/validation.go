@@ -4,22 +4,17 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/Dunsin-cyber/bkeeper/common"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
 
-type ValidationError struct {
-	Error     string `json:"error"`
-	Key       string `json:"key"`
-	Condition string `json:"condition"`
-}
-
-func (h *Handler) ValidateBodyRequest(c echo.Context, payload interface{}) []*ValidationError {
+func (h *Handler) ValidateBodyRequest(c echo.Context, payload interface{}) []*common.ValidationError {
 
 	var validate *validator.Validate
 	validate = validator.New(validator.WithRequiredStructEnabled())
 
-	var errors []*ValidationError
+	var errors []*common.ValidationError
 	err := validate.Struct(payload)
 
 	validationErrors, ok := err.(validator.ValidationErrors)
@@ -53,7 +48,7 @@ func (h *Handler) ValidateBodyRequest(c echo.Context, payload interface{}) []*Va
 			}
 
 
-			currentValidationError := &ValidationError{
+			currentValidationError := &common.ValidationError{
 				Error:      errMsg,
 				Key:       key,
 				Condition: condition,
