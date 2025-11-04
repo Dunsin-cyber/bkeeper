@@ -8,11 +8,12 @@ import (
 	"os"
 
 	"github.com/Dunsin-cyber/bkeeper/cmd/api/handlers"
-	// "github.com/Dunsin-cyber/bkeeper/cmd/api/middlewares"
+	"github.com/Dunsin-cyber/bkeeper/cmd/api/middlewares"
 	"github.com/Dunsin-cyber/bkeeper/common"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	
 )
 
 type Application struct {
@@ -24,11 +25,10 @@ type Application struct {
 func main() {
 	e := echo.New()
 
-	// e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		// Format: "time=${time_rfc3339} remote_ip=${remote_ip} method=${method}, uri=${uri}, status=${status}\n"}))
-	e.Use(middleware.Logger())
-	// e.Use(middleware.Recover())
-	// e.Use(middlewares.CustomMiddleware)
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: "time=${time_rfc3339} remote_ip=${remote_ip} method=${method}, uri=${uri}, status=${status}\n"}))
+	e.Use(middleware.Recover())
+	e.Use(middlewares.CustomMiddleware)
 
 	err := godotenv.Load(".env")
 	if err != nil {

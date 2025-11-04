@@ -10,14 +10,19 @@ import (
 func (h *Handler) RegisterHandler(c echo.Context) error {
 	//bind the request body
 	payload := new(requests.RegisterUserRequest)
-	if err := (&echo.DefaultBinder{}).BindBody(c, payload); err != nil {
+	if err := c.Bind(payload); err != nil {
 		c.Logger().Error(err)
 		return c.String(http.StatusBadRequest, "bad request")
 	}
 
-	c.Logger().Print(payload)
+	//validation
+	validationErrs := h.ValidateBodyRequest(c, *payload)
+
+	 if validationErrs != nil {
+		return c.JSON(http.StatusBadRequest, validationErrs)
+	 }
 
 	//vaidate what we binded
-	return c.JSON(http.StatusOK, payload)
+	return c.JSON(http.StatusOK, "validation successful")
 
 }
