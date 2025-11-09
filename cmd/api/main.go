@@ -43,6 +43,7 @@ func main() {
 
 	h := handlers.Handler{
 		DB: db,
+		Logger:  e.Logger,
 	}
 
 	app := Application{

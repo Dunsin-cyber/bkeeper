@@ -63,6 +63,6 @@ func SendNotFoundResponse(c echo.Context, message string) error {
 	return SendErrorResponse(c, message, http.StatusNotFound)
 }
 
-func SendINternalServerErrorResponse(c echo.Context, message string) error {
+func SendInternalServerErrorResponse(c echo.Context, message string) error {
 	return SendErrorResponse(c, message, http.StatusInternalServerError)
 }

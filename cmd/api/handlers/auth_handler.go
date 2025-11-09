@@ -1,10 +1,13 @@
 package handlers
 
 import (
+	"errors"
 
 	"github.com/Dunsin-cyber/bkeeper/cmd/api/requests"
+	"github.com/Dunsin-cyber/bkeeper/cmd/api/services"
 	"github.com/Dunsin-cyber/bkeeper/common"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 func (h *Handler) RegisterHandler(c echo.Context) error {
@@ -22,6 +25,20 @@ func (h *Handler) RegisterHandler(c echo.Context) error {
 		return common.SendFailedValidationResponse(c, validationErrs)
 	}
 
-	return common.SendSuccessResponse(c,"User resgistration successful", nil)
+	userService := services.NewUserSrvice(h.DB)
+	// check if user(email) exists
+	_, err := userService.GetUserByEmail(payload.Email)
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
+		return common.SendBadRequestResponse(c, "Email has already been taken")
+	}
+	//create a user
+	result, err := userService.RegisterUser(*payload)
+	if err != nil {
+		return common.SendInternalServerErrorResponse(c, err.Error())
+	}
+
+	//TODO: send a welcome message to the user
+	//send response
+	return common.SendSuccessResponse(c, "User resgistration successful", result)
 
 }
