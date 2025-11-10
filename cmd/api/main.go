@@ -10,10 +10,10 @@ import (
 	"github.com/Dunsin-cyber/bkeeper/cmd/api/handlers"
 	"github.com/Dunsin-cyber/bkeeper/cmd/api/middlewares"
 	"github.com/Dunsin-cyber/bkeeper/common"
+	"github.com/Dunsin-cyber/bkeeper/internal/mailer"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	
 )
 
 type Application struct {
@@ -41,9 +41,11 @@ func main() {
 		e.Logger.Fatal(err.Error())
 	}
 
+	appMailer := mailer.NewMailer(e.Logger)
 	h := handlers.Handler{
 		DB: db,
 		Logger:  e.Logger,
+		Mailer: appMailer,
 	}
 
 	app := Application{

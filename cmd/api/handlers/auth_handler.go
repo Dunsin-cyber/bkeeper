@@ -6,6 +6,7 @@ import (
 	"github.com/Dunsin-cyber/bkeeper/cmd/api/requests"
 	"github.com/Dunsin-cyber/bkeeper/cmd/api/services"
 	"github.com/Dunsin-cyber/bkeeper/common"
+	"github.com/Dunsin-cyber/bkeeper/internal/mailer"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
@@ -37,7 +38,16 @@ func (h *Handler) RegisterHandler(c echo.Context) error {
 		return common.SendInternalServerErrorResponse(c, err.Error())
 	}
 
-	//TODO: send a welcome message to the user
+	//send a welcome message to the user
+	mailData := mailer.EmailData{
+		Subject: "Welcome to Bkeeper Finance",
+		Meta:    payload,
+	}
+	err = h.Mailer.Send(payload.Email, "welcome.html", mailData)
+	if err != nil {
+		h.Logger.Error("Failed to send welcome email: ", err)
+	}
+
 	//send response
 	return common.SendSuccessResponse(c, "User resgistration successful", result)
 
