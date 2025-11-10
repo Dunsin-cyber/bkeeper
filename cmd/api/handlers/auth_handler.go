@@ -58,3 +58,41 @@ func (h *Handler) RegisterHandler(c echo.Context) error {
 	return common.SendSuccessResponse(c, "User resgistration successful", result)
 
 }
+
+func (h *Handler) LoginHandler(c echo.Context) error {
+	userService := services.NewUserSrvice(h.DB)
+	//1 bind our data
+	payload := new(requests.LoginUserRequest)
+	if err := c.Bind(payload); err != nil {
+		c.Logger().Error(err)
+		return common.SendBadRequestResponse(c, err.Error())
+	}
+
+	//2 validate the data sent by client
+	validationErrs := h.ValidateBodyRequest(c, *payload)
+	if validationErrs != nil {
+		return common.SendFailedValidationResponse(c, validationErrs)
+	}
+	//3 if user with supplied email exists
+	userRetrieved, err := userService.GetUserByEmail(payload.Email)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return common.SendBadRequestResponse(c, "invalid email or password")
+	}
+	//4 compare the client pw with the hashed pw
+	validPassword := common.ComparePasswordHash(payload.Password, userRetrieved.Password)
+	if !validPassword {
+		return common.SendBadRequestResponse(c, "invalid email or password")
+
+	}
+	accessToken, refreshToken, err := common.GenerateJWT(*userRetrieved)
+	if err != nil {
+		return common.SendInternalServerErrorResponse(c, err.Error())
+	}
+	//5 send a response
+	return common.SendSuccessResponse(c, "User logged in", map[string]interface{}{
+		"access_token":  accessToken,
+		"refresh_token": refreshToken,
+		"user":          userRetrieved,
+	})
+
+}

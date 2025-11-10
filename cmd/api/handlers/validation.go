@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/Dunsin-cyber/bkeeper/common"
@@ -34,6 +35,7 @@ func (h *Handler) ValidateBodyRequest(c echo.Context, payload interface{}) []*co
 
 			keyToTitleCase := strings.Replace(key, "_", " ", -1)
 			errMsg := keyToTitleCase + " field is " + condition
+			param := validationErr.Param()
 
 			switch condition {
 			case "required":
@@ -41,9 +43,21 @@ func (h *Handler) ValidateBodyRequest(c echo.Context, payload interface{}) []*co
 			case "email":
 				errMsg = keyToTitleCase + " must be a valid email address"
 			case "min":
-				errMsg = keyToTitleCase + " must be at least " + validationErr.Param() + " characters long"
+				if _, err := strconv.Atoi(param); err == nil {
+
+					errMsg = keyToTitleCase + " must be at least " + param + " characters long"
+				} else {
+					errMsg = keyToTitleCase + " must be at least " + param
+
+				}
 			case "max":
-				errMsg = keyToTitleCase + " must be at most " + validationErr.Param() + " characters long"
+				if _, err := strconv.Atoi(param); err == nil {
+
+					errMsg = keyToTitleCase + " must be at most " + param + " characters long"
+				} else {
+					errMsg = keyToTitleCase + " must be at most " + param
+
+				}
 			}
 
 			currentValidationError := &common.ValidationError{

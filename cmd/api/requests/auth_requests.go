@@ -5,6 +5,9 @@ type RegisterUserRequest struct {
 	LastName  string `json:"last_name" validate:"required,min=2,max=100"`
 	Email     string `json:"email" validate:"required,email"`
 	Password  string `json:"password" validate:"required,min=6,max=100"`
-	// Gender   string
+}
 
+type LoginUserRequest struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=6,max=100"`
 }
