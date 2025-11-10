@@ -33,8 +33,7 @@ func (h *Handler) ValidateBodyRequest(c echo.Context, payload interface{}) []*co
 			condition := validationErr.Tag()
 
 			keyToTitleCase := strings.Replace(key, "_", " ", -1)
-			errMsg := keyToTitleCase + " field is " + condition 
-
+			errMsg := keyToTitleCase + " field is " + condition
 
 			switch condition {
 			case "required":
@@ -47,9 +46,8 @@ func (h *Handler) ValidateBodyRequest(c echo.Context, payload interface{}) []*co
 				errMsg = keyToTitleCase + " must be at most " + validationErr.Param() + " characters long"
 			}
 
-
 			currentValidationError := &common.ValidationError{
-				Error:      errMsg,
+				Error:     errMsg,
 				Key:       key,
 				Condition: condition,
 			}

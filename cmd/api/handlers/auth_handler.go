@@ -41,7 +41,13 @@ func (h *Handler) RegisterHandler(c echo.Context) error {
 	//send a welcome message to the user
 	mailData := mailer.EmailData{
 		Subject: "Welcome to Bkeeper Finance",
-		Meta:    payload,
+		Meta: struct {
+			FirstName string
+			LoginLink string
+		}{
+			FirstName: *result.FirstName,
+			LoginLink: "#",
+		},
 	}
 	err = h.Mailer.Send(payload.Email, "welcome.html", mailData)
 	if err != nil {
