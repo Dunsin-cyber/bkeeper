@@ -8,7 +8,7 @@ import (
 	"github.com/Dunsin-cyber/bkeeper/common"
 	"github.com/Dunsin-cyber/bkeeper/internal/models"
 
-	// "github.com/Dunsin-cyber/bkeeper/internal/mailer"
+	"github.com/Dunsin-cyber/bkeeper/internal/mailer"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
@@ -16,8 +16,7 @@ import (
 func (h *Handler) RegisterHandler(c echo.Context) error {
 	//bind the request body
 	payload := new(requests.RegisterUserRequest)
-	if err := c.Bind(payload); err != nil {
-		c.Logger().Error(err)
+	if err := h.BindRequest(c, payload); err != nil {
 		return common.SendBadRequestResponse(c, err.Error())
 	}
 
@@ -41,20 +40,20 @@ func (h *Handler) RegisterHandler(c echo.Context) error {
 	}
 
 	//send a welcome message to the user
-	// mailData := mailer.EmailData{
-	// 	Subject: "Welcome to Bkeeper Finance",
-	// 	Meta: struct {
-	// 		FirstName string
-	// 		LoginLink string
-	// 	}{
-	// 		FirstName: *result.FirstName,
-	// 		LoginLink: "#",
-	// 	},
-	// }
-	// err = h.Mailer.Send(payload.Email, "welcome.html", mailData)
-	// if err != nil {
-	// 	h.Logger.Error("Failed to send welcome email: ", err)
-	// }
+	mailData := mailer.EmailData{
+		Subject: "Welcome to Bkeeper Finance",
+		Meta: struct {
+			FirstName string
+			LoginLink string
+		}{
+			FirstName: *result.FirstName,
+			LoginLink: "#",
+		},
+	}
+	err = h.Mailer.Send(payload.Email, "welcome.html", mailData)
+	if err != nil {
+		h.Logger.Error("Failed to send welcome email: ", err)
+	}
 
 	//send response
 	return common.SendSuccessResponse(c, "User resgistration successful", result)
@@ -65,8 +64,7 @@ func (h *Handler) LoginHandler(c echo.Context) error {
 	userService := services.NewUserSrvice(h.DB)
 	//1 bind our data
 	payload := new(requests.LoginUserRequest)
-	if err := c.Bind(payload); err != nil {
-		c.Logger().Error(err)
+	if err := h.BindRequest(c, payload); err != nil {
 		return common.SendBadRequestResponse(c, err.Error())
 	}
 

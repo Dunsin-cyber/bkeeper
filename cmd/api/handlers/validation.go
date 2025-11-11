@@ -58,12 +58,13 @@ func (h *Handler) ValidateBodyRequest(c echo.Context, payload interface{}) []*co
 					errMsg = keyToTitleCase + " must be at most " + param
 
 				}
+			case "eqfield":
+				errMsg = keyToTitleCase + " must be equal to " + strings.ToLower(param)
 			}
 
 			currentValidationError := &common.ValidationError{
-				Error:     errMsg,
-				Key:       key,
-				Condition: condition,
+				Error: errMsg,
+				Key:   key,
 			}
 			errors = append(errors, currentValidationError)
 		}
