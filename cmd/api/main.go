@@ -17,9 +17,10 @@ import (
 )
 
 type Application struct {
-	logger  echo.Logger
-	server  *echo.Echo
-	handler handlers.Handler
+	logger        echo.Logger
+	server        *echo.Echo
+	handler       handlers.Handler
+	appMiddleware middlewares.AppMiddleware
 }
 
 func main() {
@@ -43,15 +44,21 @@ func main() {
 
 	appMailer := mailer.NewMailer(e.Logger)
 	h := handlers.Handler{
-		DB: db,
-		Logger:  e.Logger,
+		DB:     db,
+		Logger: e.Logger,
 		Mailer: appMailer,
 	}
 
+	appMiddleware := middlewares.AppMiddleware{
+		DB:     db,
+		Logger: e.Logger,
+	}
+
 	app := Application{
-		logger:  e.Logger,
-		server:  e,
-		handler: h,
+		logger:        e.Logger,
+		server:        e,
+		handler:       h,
+		appMiddleware: appMiddleware,
 	}
 
 	app.routes(h)

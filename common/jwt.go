@@ -7,6 +7,7 @@ import (
 
 	"github.com/Dunsin-cyber/bkeeper/internal/models"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/labstack/gommon/log"
 )
 
 type CustomJWTClaims struct {
@@ -18,8 +19,8 @@ func GenerateJWT(user models.UserModel) (*string, *string, error) {
 	userClaims := CustomJWTClaims{
 		ID: user.ID,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now()),
-			IssuedAt:  jwt.NewNumericDate(time.Now().Add(time.Hour)), // Token expires in 1 hours
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)), // Token expires in 24 hours
 		},
 	}
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, userClaims)
@@ -29,7 +30,12 @@ func GenerateJWT(user models.UserModel) (*string, *string, error) {
 		return nil, nil, err
 	}
 
-	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, userClaims)
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, &CustomJWTClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)), // Token expires in 24 hours
+		},
+	})
 	signedRefreshToken, err := refreshToken.SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
 
 	if err != nil {
@@ -40,11 +46,11 @@ func GenerateJWT(user models.UserModel) (*string, *string, error) {
 }
 
 func ParseJWTSignedAccessToken(tokenString string) (*CustomJWTClaims, error) {
-	parseJwtAccessToken, err := jwt.ParseWithClaims(tokenString, &CustomJWTClaims{}, func(token *jwt.Token) (interface{}, error) {
+	parseJwtAccessToken, err := jwt.ParseWithClaims(tokenString, &CustomJWTClaims{}, func(token *jwt.Token) (any, error) {
 		return []byte(os.Getenv("JWT_SECRET_KEY")), nil
 	})
 	if err != nil {
-		// log.Error(err)
+		log.Error(err)
 		return nil, err
 	} else if claims, ok := parseJwtAccessToken.Claims.(*CustomJWTClaims); ok && parseJwtAccessToken.Valid {
 		return claims, nil
@@ -54,4 +60,7 @@ func ParseJWTSignedAccessToken(tokenString string) (*CustomJWTClaims, error) {
 
 }
 
-// func
+func IsClaimExpired(claims *CustomJWTClaims) bool {
+	currrentTime := jwt.NewNumericDate(time.Now())
+	return claims.ExpiresAt.Before(currrentTime.Time)
+}
