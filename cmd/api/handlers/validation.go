@@ -60,6 +60,8 @@ func (h *Handler) ValidateBodyRequest(c echo.Context, payload interface{}) []*co
 				}
 			case "eqfield":
 				errMsg = keyToTitleCase + " must be equal to " + strings.ToLower(param)
+			case "url":
+				errMsg = keyToTitleCase + " must be a valid url"
 			}
 
 			currentValidationError := &common.ValidationError{

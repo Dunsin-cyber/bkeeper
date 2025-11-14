@@ -20,7 +20,7 @@ func GenerateJWT(user models.UserModel) (*string, *string, error) {
 		ID: user.ID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)), // Token expires in 24 hours
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 2)), // Token expires in 2 hours
 		},
 	}
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, userClaims)
@@ -33,7 +33,7 @@ func GenerateJWT(user models.UserModel) (*string, *string, error) {
 	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, &CustomJWTClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)), // Token expires in 24 hours
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 2)), // Token expires in 2 hours
 		},
 	})
 	signedRefreshToken, err := refreshToken.SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
