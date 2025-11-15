@@ -19,7 +19,7 @@ func (h *Handler) ForgotPasswordHandler(c echo.Context) error {
 	if err := h.BindRequest(c, payload); err != nil {
 		return common.SendBadRequestResponse(c, err.Error())
 	}
-
+	
 	//validation
 	validationErrs := h.ValidateBodyRequest(c, *payload)
 
